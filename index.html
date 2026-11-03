@@ -1,9 +1,18 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="mr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI Krushi Sahayak</title>
+<title>AI Krushi Sahayak – पीक रोग तपासणी, पीक सल्ला व हवामान (शेतकरी मित्र)</title>
+<meta name="description" content="AI Krushi Sahayak: पानाचा फोटो टाकून पीक रोग तपासा, माती व हंगामानुसार योग्य पीक शोधा आणि ३ दिवसांचा हवामान अंदाज मिळवा. Free crop disease detection, crop suggestion and weather advice for farmers.">
+<meta name="keywords" content="AI Krushi Sahayak, krushi sahayak, पीक रोग तपासणी, पीक सल्ला, शेतकरी app, crop disease detection, crop recommendation, farmer app Maharashtra">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#1f4a28">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AI Krushi Sahayak – शेतकऱ्यांचा स्मार्ट मित्र">
+<meta property="og:description" content="फोटो टाका, पीक रोग ओळखा. पीक सल्ला आणि हवामान अंदाज एकाच ठिकाणी.">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"AI Krushi Sahayak","applicationCategory":"AgricultureApplication","operatingSystem":"Any","inLanguage":["mr","en"],"description":"Crop disease check, crop suggestion and weather advice for farmers.","offers":{"@type":"Offer","price":"0","priceCurrency":"INR"}}</script>
 <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--g:#2f6b3a;--gd:#1f4a28;--gl:#e6f0e2;--soil:#7a5230;--bg:#f6f4ee;--card:#fff;--tx:#1d2a1f;--mu:#5d6b5f;--bd:#d9ded3;--red:#b3341f;--redl:#fbe9e5;--am:#8a5a00;--aml:#fff3d6}
@@ -74,6 +83,9 @@ nav button span{display:block;font-size:20px}
       <h2>AI Krushi Sahayak</h2>
       <p class="note" style="font-size:14px">Mobile number ne login kara</p>
     </div>
+    <p style="font-size:13px;color:var(--mu);background:var(--gl);border-radius:8px;padding:10px;margin-bottom:6px">
+      <b>AI Krushi Sahayak</b> shetkaryansathi free app ahe: 📷 panacha photo taka ani <b>pik rog</b> olkha, 🌱 maati ani hangamanusar <b>yogya pik</b> shodha, 🌦️ 3 divsacha <b>havaman andaaz</b> pahaa.
+    </p>
     <div id="step1">
       <label for="phone">Mobile number</label>
       <div class="ph"><span>+91</span><input id="phone" type="tel" inputmode="numeric" maxlength="10" placeholder="9876543210" autocomplete="tel-national"></div>
@@ -361,13 +373,15 @@ $('wx').onclick = () => {
 /* ================= MOBILE OTP LOGIN (Firebase) ================= */
 /* Firebase console -> Project settings -> Your apps -> Web app -> config ithe paste kara */
 const firebaseConfig = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyA-Ap7xveE_lzaN_hx9OFlq7h9shjM2iaQ",
+  authDomain: "krushi-sahayak-c8577.firebaseapp.com",
+  projectId: "krushi-sahayak-c8577",
+  storageBucket: "krushi-sahayak-c8577.firebasestorage.app",
+  messagingSenderId: "1036829084016",
+  appId: "1:1036829084016:web:c2f1f3ead84bf907af27b5"
 };
 
-let confirmation = null, verifier = null, timer = null;
+let confirmation = null, verifier = null, timer = null, authReady = false;
 
 function showApp(user) {
   $('login').hidden = !!user;
@@ -432,6 +446,7 @@ function startTimer() {
 }
 
 async function sendOtp() {
+  if (!authReady) { lerr('Firebase config bharli nahi. File madhe firebaseConfig madhe PASTE_ chya jagi tujhya project chi values taka.'); return; }
   const n = $('phone').value.trim();
   if (!/^[6-9]\d{9}$/.test(n)) { lerr('10 ankanchha barobar mobile number taka.'); return; }
   lerr('');
@@ -485,9 +500,11 @@ $('logout').onclick = () => { if (confirm('Logout karaycha?')) firebase.auth().s
     return;
   }
   firebase.initializeApp(firebaseConfig);
+  authReady = true;
   firebase.auth().languageCode = 'mr';
   firebase.auth().onAuthStateChanged(showApp);
 })();
 </script>
 </body>
 </html>
+ 
