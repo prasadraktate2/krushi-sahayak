@@ -48,15 +48,50 @@ nav button span{display:block;font-size:20px}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes s{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.spin{animation:none}}
+[hidden]{display:none!important}
+.ph{display:flex;gap:8px}
+.ph span{border:1px solid var(--bd);border-radius:8px;padding:11px 12px;background:#fff}
+.ph input{flex:1;width:100%;padding:11px;border:1px solid var(--bd);border-radius:8px;font:inherit;font-size:18px;letter-spacing:1px}
+.otp{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:12px 0 4px}
+.otp input{width:100%;height:48px;text-align:center;font:inherit;font-size:20px;font-weight:700;border:1px solid var(--bd);border-radius:8px}
+.otp input:focus,.ph input:focus{outline:2px solid var(--g);border-color:var(--g)}
+#login{max-width:420px;margin:0 auto;padding:24px 14px}
 </style>
 </head>
 <body>
-<header>
-  <h1>🌿 AI Krushi Sahayak</h1>
-  <p>Shetkaryancha smart mitra</p>
+<header style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+  <div>
+    <h1>🌿 AI Krushi Sahayak</h1>
+    <p id="who">Shetkaryancha smart mitra</p>
+  </div>
+  <button id="logout" class="sec" hidden style="width:auto;margin:0;padding:6px 12px;font-size:13px;background:transparent;color:#fff;border-color:#fff">Logout</button>
 </header>
 
-<main>
+<div id="login" hidden>
+  <div class="card">
+    <div style="text-align:center;margin-bottom:6px">
+      <div style="font-size:36px">🌿</div>
+      <h2>AI Krushi Sahayak</h2>
+      <p class="note" style="font-size:14px">Mobile number ne login kara</p>
+    </div>
+    <div id="step1">
+      <label for="phone">Mobile number</label>
+      <div class="ph"><span>+91</span><input id="phone" type="tel" inputmode="numeric" maxlength="10" placeholder="9876543210" autocomplete="tel-national"></div>
+      <button id="sendOtp">OTP pathva</button>
+    </div>
+    <div id="step2" hidden>
+      <p id="sentTo" style="text-align:center;font-size:14px;color:var(--mu)"></p>
+      <div class="otp" id="otp"></div>
+      <button id="verify">Login kara</button>
+      <button class="sec" id="resend">OTP punha pathva</button>
+      <button class="sec" id="chg" style="border-color:var(--bd);color:var(--mu)">Number badla</button>
+    </div>
+    <div id="lerr"></div>
+    <div id="rc"></div>
+  </div>
+</div>
+
+<main id="app" hidden>
 <!-- TAB 1: ROG TAPASA -->
 <section id="t1" class="on">
   <div class="card">
@@ -130,12 +165,14 @@ nav button span{display:block;font-size:20px}
 </section>
 </main>
 
-<nav>
+<nav id="nav" hidden>
   <button class="on" data-t="t1"><span>📷</span>Rog</button>
   <button data-t="t2"><span>🌱</span>Pik</button>
   <button data-t="t3"><span>🌦️</span>Havaman</button>
 </nav>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 
@@ -320,7 +357,137 @@ $('wx').onclick = () => {
     $('wx').textContent = 'Maza havaman pahaa';
   }, { timeout: 12000 });
 };
+
+/* ================= MOBILE OTP LOGIN (Firebase) ================= */
+/* Firebase console -> Project settings -> Your apps -> Web app -> config ithe paste kara */
+const firebaseConfig = {
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE_PROJECT.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID",
+  appId: "PASTE_APP_ID"
+};
+
+let confirmation = null, verifier = null, timer = null;
+
+function showApp(user) {
+  $('login').hidden = !!user;
+  $('app').hidden = !user;
+  $('nav').hidden = !user;
+  $('logout').hidden = !user;
+  $('who').textContent = user ? (user.phoneNumber || 'Login zala') : 'Shetkaryancha smart mitra';
+}
+function lerr(msg, ok) {
+  $('lerr').innerHTML = msg ? `<div class="res ${ok ? 'good' : 'bad'}">${esc(msg)}</div>` : '';
+}
+function errMsg(e) {
+  const m = {
+    'auth/invalid-phone-number': 'Mobile number chukicha ahe.',
+    'auth/too-many-requests': 'Khup prayatn zale. Thoda velane punha kara.',
+    'auth/invalid-verification-code': 'OTP chukicha ahe. Punha tapasa.',
+    'auth/code-expired': 'OTP chi vel sampli. Navin OTP mhagva.',
+    'auth/quota-exceeded': 'Aajche SMS limit sampale. Udya prayatn kara.',
+    'auth/captcha-check-failed': 'Verification fail zale. Page refresh kara.',
+    'auth/unauthorized-domain': 'Ha domain Firebase madhe authorize nahi (Authentication > Settings > Authorized domains).',
+    'auth/operation-not-allowed': 'Firebase madhe Phone login chalu kara.',
+    'auth/network-request-failed': 'Internet tapasa.'
+  };
+  return m[e.code] || ('Kahitari chukle: ' + (e.code || e.message));
+}
+
+/* OTP boxes */
+const otpWrap = $('otp');
+for (let i = 0; i < 6; i++) {
+  const x = document.createElement('input');
+  x.type = 'text'; x.inputMode = 'numeric'; x.maxLength = 1;
+  x.setAttribute('aria-label', 'OTP ank ' + (i + 1));
+  if (i === 0) x.autocomplete = 'one-time-code';
+  x.oninput = () => {
+    x.value = x.value.replace(/\D/g, '');
+    if (x.value && i < 5) otpWrap.children[i + 1].focus();
+    if (getOtp().length === 6) $('verify').click();
+  };
+  x.onkeydown = e => { if (e.key === 'Backspace' && !x.value && i > 0) otpWrap.children[i - 1].focus(); };
+  x.onpaste = e => {
+    const t = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+    if (!t) return;
+    e.preventDefault();
+    [...t].forEach((c, k) => otpWrap.children[k].value = c);
+    otpWrap.children[Math.min(t.length, 5)].focus();
+    if (t.length === 6) $('verify').click();
+  };
+  otpWrap.appendChild(x);
+}
+const getOtp = () => [...otpWrap.children].map(i => i.value).join('');
+
+function startTimer() {
+  let t = 30;
+  $('resend').disabled = true;
+  clearInterval(timer);
+  timer = setInterval(() => {
+    t--;
+    $('resend').textContent = t > 0 ? `OTP punha pathva (${t}s)` : 'OTP punha pathva';
+    if (t <= 0) { clearInterval(timer); $('resend').disabled = false; }
+  }, 1000);
+  $('resend').textContent = 'OTP punha pathva (30s)';
+}
+
+async function sendOtp() {
+  const n = $('phone').value.trim();
+  if (!/^[6-9]\d{9}$/.test(n)) { lerr('10 ankanchha barobar mobile number taka.'); return; }
+  lerr('');
+  const btn = $('sendOtp');
+  btn.innerHTML = '<span class="spin"></span>Pathvat ahe...';
+  try {
+    if (!verifier) verifier = new firebase.auth.RecaptchaVerifier('rc', { size: 'invisible' });
+    confirmation = await firebase.auth().signInWithPhoneNumber('+91' + n, verifier);
+    $('step1').hidden = true;
+    $('step2').hidden = false;
+    $('sentTo').textContent = '+91 ' + n + ' var OTP pathvla';
+    [...otpWrap.children].forEach(i => i.value = '');
+    otpWrap.children[0].focus();
+    startTimer();
+  } catch (e) {
+    lerr(errMsg(e));
+    try { verifier.clear(); } catch (x) {}
+    verifier = null;
+  }
+  btn.textContent = 'OTP pathva';
+}
+
+$('sendOtp').onclick = sendOtp;
+$('resend').onclick = () => { $('step2').hidden = true; $('step1').hidden = false; sendOtp(); };
+$('chg').onclick = () => { $('step2').hidden = true; $('step1').hidden = false; lerr(''); clearInterval(timer); };
+
+$('verify').onclick = async () => {
+  const c = getOtp();
+  if (c.length !== 6) { lerr('6 ankanchha OTP taka.'); return; }
+  lerr('');
+  $('verify').innerHTML = '<span class="spin"></span>Tapasat ahe...';
+  try {
+    await confirmation.confirm(c);
+  } catch (e) {
+    lerr(errMsg(e));
+  }
+  $('verify').textContent = 'Login kara';
+};
+
+$('logout').onclick = () => { if (confirm('Logout karaycha?')) firebase.auth().signOut(); };
+
+(function initAuth() {
+  if (typeof firebase === 'undefined') {
+    showApp(null);
+    lerr('Firebase load zala nahi. Internet tapasa.');
+    return;
+  }
+  if (firebaseConfig.apiKey.startsWith('PASTE')) {
+    showApp(null);
+    lerr('Aadhi firebaseConfig madhe tujhya Firebase project chi values paste kara.');
+    return;
+  }
+  firebase.initializeApp(firebaseConfig);
+  firebase.auth().languageCode = 'mr';
+  firebase.auth().onAuthStateChanged(showApp);
+})();
 </script>
 </body>
 </html>
-
