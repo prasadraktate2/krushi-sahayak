@@ -1,1 +1,326 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Krushi Sahayak</title>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#2f6b3a;--gd:#1f4a28;--gl:#e6f0e2;--soil:#7a5230;--bg:#f6f4ee;--card:#fff;--tx:#1d2a1f;--mu:#5d6b5f;--bd:#d9ded3;--red:#b3341f;--redl:#fbe9e5;--am:#8a5a00;--aml:#fff3d6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Mukta',system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:16px;line-height:1.5;padding-bottom:76px}
+header{background:var(--gd);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5}
+header h1{font-size:19px;font-weight:700}
+header p{font-size:13px;opacity:.8}
+main{max-width:640px;margin:0 auto;padding:14px}
+section{display:none}
+section.on{display:block}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px}
+h2{font-size:17px;margin-bottom:8px}
+label{display:block;font-size:14px;color:var(--mu);margin:10px 0 4px}
+select,input[type=password]{width:100%;padding:11px;border:1px solid var(--bd);border-radius:8px;font:inherit;background:#fff}
+button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:12px 16px;background:var(--g);color:#fff;width:100%;margin-top:12px;cursor:pointer}
+button:active{background:var(--gd)}
+button.sec{background:#fff;color:var(--g);border:1px solid var(--g)}
+.drop{border:2px dashed var(--bd);border-radius:10px;padding:18px;text-align:center;color:var(--mu);cursor:pointer}
+.drop img{max-width:100%;max-height:220px;border-radius:8px;display:block;margin:0 auto}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{margin:0;display:flex;align-items:center;gap:6px;border:1px solid var(--bd);border-radius:20px;padding:6px 12px;color:var(--tx);font-size:14px;background:#fff}
+.chips input:checked+span{font-weight:700;color:var(--g)}
+.res{border-radius:10px;padding:12px;margin-top:10px;font-size:15px}
+.res.bad{background:var(--redl);color:#6e1e10}
+.res.good{background:var(--gl);color:var(--gd)}
+.res.warn{background:var(--aml);color:var(--am)}
+.res b{display:block;margin-bottom:2px}
+.crop{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.crop:last-child{border:0}
+.crop small{color:var(--mu);display:block;font-size:13px}
+.tag{font-size:12px;background:var(--gl);color:var(--gd);border-radius:6px;padding:2px 8px;height:fit-content;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stat{background:var(--gl);border-radius:10px;padding:10px;text-align:center}
+.stat b{font-size:22px;display:block;color:var(--gd)}
+.stat span{font-size:13px;color:var(--mu)}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bd);display:flex;z-index:5}
+nav button{margin:0;border-radius:0;background:#fff;color:var(--mu);flex:1;padding:10px 4px;font-size:13px;line-height:1.3}
+nav button.on{color:var(--g);border-top:3px solid var(--g);background:var(--gl)}
+nav button span{display:block;font-size:20px}
+.note{font-size:12px;color:var(--mu);margin-top:8px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes s{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌿 AI Krushi Sahayak</h1>
+  <p>Shetkaryancha smart mitra</p>
+</header>
+
+<main>
+<!-- TAB 1: ROG TAPASA -->
+<section id="t1" class="on">
+  <div class="card">
+    <h2>📷 Rog tapasa</h2>
+    <div class="drop" id="drop">
+      <div id="dropTxt">Panacha photo ithe select kara<br><small>(camera kiva gallery)</small></div>
+      <img id="prev" alt="Pan photo" hidden>
+    </div>
+    <input type="file" id="file" accept="image/*" hidden>
+
+    <label for="crop">Pik</label>
+    <select id="crop">
+      <option>Tomato</option><option>Kanda (Onion)</option><option>Kapus (Cotton)</option>
+      <option>Soyabean</option><option>Ushu (Sugarcane)</option><option>Gahu (Wheat)</option>
+      <option>Draksha (Grapes)</option><option>Dusre</option>
+    </select>
+
+    <label>Kay disat ahe? (je lagu hot te select kara)</label>
+    <div class="chips" id="sym"></div>
+
+    <button id="go">Rog tapasa</button>
+    <div id="out1"></div>
+  </div>
+
+  <div class="card">
+    <h2>🤖 AI photo analysis (optional)</h2>
+    <p style="font-size:14px;color:var(--mu)">Photo var AI analysis pahije tar Claude API key taka. Key nasel tar upar symptoms varun salla milel.</p>
+    <label for="key">Claude API key</label>
+    <input type="password" id="key" placeholder="sk-ant-...">
+    <button class="sec" id="saveKey">Key save kara (ya phone madhe)</button>
+    <p class="note">Key fakt tujhya browser madhe save hote. Public site var swatachi key share karu naka.</p>
+  </div>
+</section>
+
+<!-- TAB 2: PIK SUCHVA -->
+<section id="t2">
+  <div class="card">
+    <h2>🌱 Pik suchva</h2>
+    <label for="soil">Maati</label>
+    <select id="soil">
+      <option value="black">Kali maati</option>
+      <option value="red">Lal maati</option>
+      <option value="sandy">Valu / halki maati</option>
+      <option value="alluvial">Gadgad (nadi kaathchi) maati</option>
+    </select>
+    <label for="season">Hangam</label>
+    <select id="season">
+      <option value="kharif">Kharif (June–Oct)</option>
+      <option value="rabi">Rabi (Oct–Mar)</option>
+      <option value="summer">Unhali (Mar–June)</option>
+    </select>
+    <label for="water">Pani</label>
+    <select id="water">
+      <option value="1">Kami</option>
+      <option value="2" selected>Madhyam</option>
+      <option value="3">Bharpur</option>
+    </select>
+    <button id="rec">Pik suchva</button>
+    <div id="out2"></div>
+  </div>
+</section>
+
+<!-- TAB 3: HAVAMAN -->
+<section id="t3">
+  <div class="card">
+    <h2>🌦️ Havaman salla</h2>
+    <p style="font-size:14px;color:var(--mu)">Tujhya location nusar pudhche 3 divsache havaman ani shetichi salla.</p>
+    <button id="wx">Maza havaman pahaa</button>
+    <div id="out3"></div>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button class="on" data-t="t1"><span>📷</span>Rog</button>
+  <button data-t="t2"><span>🌱</span>Pik</button>
+  <button data-t="t3"><span>🌦️</span>Havaman</button>
+</nav>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('section').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  $(b.dataset.t).classList.add('on');
+  window.scrollTo(0, 0);
+});
+
+/* ---------- Rog tapasa: data ---------- */
+const SYMS = {
+  yellow: 'Pivali padlele pane',
+  spots: 'Pananvar kale / tapkiri dag',
+  powder: 'Pananvar pandhri bhuki',
+  curl: 'Pane murgalleli / kurkurit',
+  wilt: 'Roop kojhaltay / sukatay',
+  holes: 'Pananmadhe chhidre / alya',
+  fruit: 'Fal kujtay / dag'
+};
+const DIS = {
+  yellow: ['Nitrogen kami kiva Yellow Mosaic virus', 'Nitrogen kami asel tar Urea 20–25 kg/acre dya. Pane gol-gol pivali ani jalichi asel tar virus asu shakto: pandhrya mashi (whitefly) var Imidacloprid 0.5 ml/litre phavara.'],
+  spots: ['Leaf spot / Blight (burashijanya rog)', 'Rogg grast pane kadhun taka. Mancozeb 2.5 g/litre pani phavara. 8–10 divsat punha phavara. Pani pananvar rahu deu naka.'],
+  powder: ['Powdery mildew (bhuri)', 'Sulphur WP 2–3 g/litre pani phavara. Hava khelti thevnyasathi garaj nusar pik-antar thevaa.'],
+  curl: ['Leaf curl virus / mavā-tudtude', 'Pandhri mashi ani tudtude yanvar niyantran karaa: Neem tel 5 ml/litre kiva Imidacloprid 0.5 ml/litre. Grast zad ukhadun naash kara.'],
+  wilt: ['Wilt (kojhane) / mul-kuj', 'Maati madhe pani jast zale ka tapasaa. Trichoderma 5 g/litre mulashi ala. Grast zad ukhadun bajula kara.'],
+  holes: ['Alya / kidi (caterpillar)', 'Neem ark 5% kiva Emamectin benzoate 0.4 g/litre phavara. Sandhyakali phavara.'],
+  fruit: ['Fal sadne / Fruit rot', 'Kujlele fal kadhun taka. Copper oxychloride 3 g/litre pani phavara. Jast pani devu naka.']
+};
+$('sym').innerHTML = Object.entries(SYMS).map(([k, v]) =>
+  `<label><input type="checkbox" value="${k}"><span>${v}</span></label>`).join('');
+
+/* ---------- Photo select ---------- */
+let imgData = null;
+$('drop').onclick = () => $('file').click();
+$('file').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const im = new Image();
+    im.onload = () => {
+      const m = 1024, s = Math.min(1, m / Math.max(im.width, im.height));
+      const c = document.createElement('canvas');
+      c.width = im.width * s; c.height = im.height * s;
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      const url = c.toDataURL('image/jpeg', 0.85);
+      imgData = url.split(',')[1];
+      $('prev').src = url; $('prev').hidden = false; $('dropTxt').hidden = true;
+    };
+    im.src = ev.target.result;
+  };
+  r.readAsDataURL(f);
+};
+
+/* ---------- API key ---------- */
+try { $('key').value = localStorage.getItem('ks_key') || ''; } catch (e) {}
+$('saveKey').onclick = () => {
+  try { localStorage.setItem('ks_key', $('key').value.trim()); alert('Key save zali'); }
+  catch (e) { alert('Save hou shakla nahi'); }
+};
+
+/* ---------- Rog tapasa: run ---------- */
+const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+$('go').onclick = async () => {
+  const crop = $('crop').value;
+  const picked = [...document.querySelectorAll('#sym input:checked')].map(i => i.value);
+  const key = $('key').value.trim();
+  const out = $('out1');
+
+  if (key && imgData) {
+    $('go').innerHTML = '<span class="spin"></span>Tapasat ahe...';
+    try {
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 700,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imgData } },
+              { type: 'text', text: `Hi ${crop} chya panacha/falacha photo ahe. Shetkaryala samjel ashya simple Marathi-English mix madhe sang: 1) Rog/samasya kaay ase vatte 2) Confidence (low/medium/high) 3) Gharguti ani rasayanik upay (dose sahit) 4) Kadhi krushi adhikari la bhetaycha. Photo spasht nasel tar tase sang. Sankshipta theva.` }
+            ]
+          }]
+        })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error?.message || 'API error');
+      out.innerHTML = `<div class="res good"><b>AI analysis</b>${esc(d.content.map(x => x.text || '').join('')).replace(/\n/g, '<br>')}</div>
+        <p class="note">AI cha andaaz ahe. Mothha niryanachya adhi krushi adhikaryacha salla ghya.</p>`;
+    } catch (e) {
+      out.innerHTML = `<div class="res bad"><b>AI chalala nahi</b>${esc(e.message)}. Key tapasa kiva symptoms var salla ghya.</div>`;
+    }
+    $('go').textContent = 'Rog tapasa';
+    return;
+  }
+
+  if (!picked.length) {
+    out.innerHTML = `<div class="res warn"><b>Kahi select kara</b>Kamit kami ek lakshan select kara${imgData ? ' (kiva API key taka mhanje photo var AI analysis hoil)' : ''}.</div>`;
+    return;
+  }
+  out.innerHTML = picked.map(k => `<div class="res bad"><b>${esc(DIS[k][0])}</b>${esc(DIS[k][1])}</div>`).join('') +
+    `<p class="note">${esc(crop)} sathi hi samanya salla ahe. Rog nakki karnyasathi krushi adhikaryala dakhva.</p>`;
+};
+
+/* ---------- Pik suchva ---------- */
+/* [name, soils, seasons, water need 1-3, note] */
+const CROPS = [
+  ['Soyabean', ['black', 'red'], ['kharif'], 2, 'Kali/madhyam maati, 90–110 divs'],
+  ['Kapus (Cotton)', ['black'], ['kharif'], 2, 'Kali maati sathi uttam'],
+  ['Tur', ['black', 'red'], ['kharif'], 1, 'Kami pani, antar-pik karta yeto'],
+  ['Bajri', ['sandy', 'red'], ['kharif'], 1, 'Kordvahu, kami paus chalto'],
+  ['Mug / Udid', ['black', 'red', 'sandy'], ['kharif', 'summer'], 1, 'Lavkar yenara, 60–70 divs'],
+  ['Bhat (Rice)', ['alluvial', 'black'], ['kharif'], 3, 'Jast pani lagte'],
+  ['Makka (Maize)', ['alluvial', 'red', 'black'], ['kharif', 'rabi'], 2, 'Changla bhav, chara pan milto'],
+  ['Gahu (Wheat)', ['alluvial', 'black'], ['rabi'], 2, 'Thandit chhan yeto'],
+  ['Harbhara (Gram)', ['black', 'red'], ['rabi'], 1, 'Kami pani, changla nafa'],
+  ['Jwari (Rabi)', ['black'], ['rabi'], 1, 'Kordvahu, chara ani dhanya'],
+  ['Kanda (Onion)', ['black', 'red', 'alluvial'], ['rabi', 'kharif'], 2, 'Changla bhav, saathvnuk garaj'],
+  ['Harbhara + Gahu', ['alluvial', 'black'], ['rabi'], 2, 'Mishra pik'],
+  ['Ushu (Sugarcane)', ['black', 'alluvial'], ['kharif', 'rabi', 'summer'], 3, 'Barmahi pani garaj, 12–18 mahine'],
+  ['Tomato', ['red', 'alluvial', 'black'], ['rabi', 'summer'], 2, 'Drip sobat changle'],
+  ['Bhuimug (Groundnut)', ['sandy', 'red'], ['kharif', 'summer'], 2, 'Halki maati sathi uttam'],
+  ['Kalingad (Watermelon)', ['sandy', 'alluvial'], ['summer'], 2, 'Unhat lavkar paisa'],
+  ['Bhendi', ['alluvial', 'red', 'black'], ['summer', 'kharif'], 2, 'Rojchi kamai'],
+  ['Moog / Chavli', ['sandy', 'red'], ['summer'], 1, 'Kami pani, chhoti pik'],
+  ['Sunflower', ['black', 'red', 'sandy'], ['rabi', 'summer'], 1, 'Tel, kami pani']
+];
+$('rec').onclick = () => {
+  const soil = $('soil').value, season = $('season').value, w = +$('water').value;
+  let list = CROPS.filter(c => c[1].includes(soil) && c[2].includes(season) && c[3] <= w);
+  list.sort((a, b) => b[3] - a[3]);
+  $('out2').innerHTML = list.length
+    ? '<div style="margin-top:10px">' + list.map(c =>
+        `<div class="crop"><div><b>${esc(c[0])}</b><small>${esc(c[4])}</small></div><span class="tag">Pani: ${['Kami', 'Madhyam', 'Jast'][c[3] - 1]}</span></div>`).join('') +
+      '</div><p class="note">Ya nivdinsathi sthanik krushi kendra / hawaman anchi salla pan ghya.</p>'
+    : '<div class="res warn"><b>Pik sapadla nahi</b>Pani jast kara kiva dusri maati/hangam nivda.</div>';
+};
+
+/* ---------- Havaman ---------- */
+$('wx').onclick = () => {
+  const out = $('out3');
+  if (!navigator.geolocation) { out.innerHTML = '<div class="res bad">Location support nahi.</div>'; return; }
+  $('wx').innerHTML = '<span class="spin"></span>Location ghet ahe...';
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: la, longitude: lo } = pos.coords;
+    try {
+      const u = `https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=precipitation_sum,precipitation_probability_max,temperature_2m_max&forecast_days=3&timezone=auto`;
+      const d = await (await fetch(u)).json();
+      const c = d.current, dl = d.daily;
+      const rain = Math.max(...dl.precipitation_probability_max);
+      const mm = dl.precipitation_sum.reduce((a, b) => a + b, 0);
+      const hot = Math.max(...dl.temperature_2m_max);
+      const tips = [];
+      if (rain >= 60) tips.push(['warn', 'Paus yenyachi shakyata jast', 'Favarni / khat deu naka. Shetat pani sachu naye mhanun nichra kadha.']);
+      else tips.push(['good', 'Paus kami', 'Favarni sathi changla kaal. Vara kami astana phavara.']);
+      if (hot >= 38) tips.push(['warn', 'Unhacha tadka', 'Sakali kiva sandhyakali pani dya. Mulshi mulching kara.']);
+      if (c.relative_humidity_2m >= 80) tips.push(['warn', 'Humidity jast', 'Burashi (fungus) rog hou shaktat. Pikancha nirikshan kara.']);
+      if (c.wind_speed_10m >= 25) tips.push(['warn', 'Vara jast', 'Favarni talaa. Uchcha pikaana adhar dya.']);
+      out.innerHTML = `<div class="stats" style="margin-top:12px">
+        <div class="stat"><b>${Math.round(c.temperature_2m)}°C</b><span>Ata tapman</span></div>
+        <div class="stat"><b>${Math.round(c.relative_humidity_2m)}%</b><span>Humidity</span></div>
+        <div class="stat"><b>${Math.round(rain)}%</b><span>Paus shakyata</span></div>
+        <div class="stat"><b>${Math.round(mm)} mm</b><span>3 divs paus</span></div></div>` +
+        tips.map(t => `<div class="res ${t[0]}"><b>${t[1]}</b>${t[2]}</div>`).join('');
+    } catch (e) {
+      out.innerHTML = '<div class="res bad"><b>Havaman milala nahi</b>Internet tapasa ani punha prayatn kara.</div>';
+    }
+    $('wx').textContent = 'Maza havaman pahaa';
+  }, () => {
+    out.innerHTML = '<div class="res bad"><b>Location parmission pahije</b>Browser settings madhe location allow kara.</div>';
+    $('wx').textContent = 'Maza havaman pahaa';
+  }, { timeout: 12000 });
+};
+</script>
+</body>
+</html>
 
