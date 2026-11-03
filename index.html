@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="mr">
 <head>
 <meta charset="UTF-8">
@@ -405,7 +405,7 @@ function errMsg(e) {
     'auth/operation-not-allowed': 'Firebase madhe Phone login chalu kara.',
     'auth/network-request-failed': 'Internet tapasa.'
   };
-  return m[e.code] || ('Kahitari chukle: ' + (e.code || e.message));
+  return (m[e.code] || 'Kahitari chukle') + ' [' + (e.code || e.message) + ']';
 }
 
 /* OTP boxes */
@@ -507,4 +507,3 @@ $('logout').onclick = () => { if (confirm('Logout karaycha?')) firebase.auth().s
 </script>
 </body>
 </html>
- 
